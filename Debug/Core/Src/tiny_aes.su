@@ -1,0 +1,12 @@
+../Core/Src/tiny_aes.c:37:13:KeyExpansion	40	static
+../Core/Src/tiny_aes.c:57:13:AddRoundKey	32	static
+../Core/Src/tiny_aes.c:61:13:SubBytes	24	static
+../Core/Src/tiny_aes.c:64:13:ShiftRows	24	static
+../Core/Src/tiny_aes.c:71:16:xtime	16	static
+../Core/Src/tiny_aes.c:72:13:MixColumns	24	static
+../Core/Src/tiny_aes.c:82:13:Cipher	24	static
+../Core/Src/tiny_aes.c:88:6:AES_init_ctx	16	static
+../Core/Src/tiny_aes.c:89:6:AES_init_ctx_iv	24	static
+../Core/Src/tiny_aes.c:90:6:AES_ctx_set_iv	16	static
+../Core/Src/tiny_aes.c:91:6:AES_ECB_encrypt	16	static
+../Core/Src/tiny_aes.c:92:6:AES_CTR_xcrypt_buffer	56	static

@@ -1,0 +1,5 @@
+../Core/Src/freertos.c:108:6:MX_FREERTOS_Init	8	static
+../Core/Src/freertos.c:156:6:StartDefaultTask	24	static
+../Core/Src/freertos.c:191:6:StartCommunicationTask	336	static
+../Core/Src/freertos.c:289:6:StartReadSensorsTask	72	static
+../Core/Src/freertos.c:338:13:LogCommunicationError	24	static

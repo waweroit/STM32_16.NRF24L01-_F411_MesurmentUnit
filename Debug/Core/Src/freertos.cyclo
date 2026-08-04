@@ -1,0 +1,5 @@
+../Core/Src/freertos.c:108:6:MX_FREERTOS_Init	1
+../Core/Src/freertos.c:156:6:StartDefaultTask	3
+../Core/Src/freertos.c:191:6:StartCommunicationTask	9
+../Core/Src/freertos.c:289:6:StartReadSensorsTask	4
+../Core/Src/freertos.c:338:13:LogCommunicationError	4

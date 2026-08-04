@@ -1,0 +1,5 @@
+../Core/Src/UsbDebug.c:23:6:UsbDebug_CreateOsObjects	8	static
+../Core/Src/UsbDebug.c:36:6:Debug	280	static
+../Core/Src/UsbDebug.c:71:6:DebugPrintf	272	static
+../Core/Src/UsbDebug.c:95:6:DebugMessage	312	static
+../Core/Src/UsbDebug.c:146:6:UsbDebug_Process	272	static

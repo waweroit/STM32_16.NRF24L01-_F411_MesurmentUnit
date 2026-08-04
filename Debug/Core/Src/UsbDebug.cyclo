@@ -1,0 +1,5 @@
+../Core/Src/UsbDebug.c:23:6:UsbDebug_CreateOsObjects	2
+../Core/Src/UsbDebug.c:36:6:Debug	6
+../Core/Src/UsbDebug.c:71:6:DebugPrintf	3
+../Core/Src/UsbDebug.c:95:6:DebugMessage	8
+../Core/Src/UsbDebug.c:146:6:UsbDebug_Process	7
