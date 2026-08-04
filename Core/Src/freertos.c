@@ -28,12 +28,15 @@
 #include <stdio.h>
 #include <string.h>
 #include "spi.h"
+#include "i2c.h"
 #include "UsbDebug.h"
 #include "SecureCommunication.h"
 #include "Communication.h"
 #include "CommunicationLink.h"
 #include "NrfLink.h"
 #include "CommunicationDevices.h"
+#include "BMP280.h"
+#include "BH1750.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,6 +110,15 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
+	bmp280.i2c = &hi2c1;               // uchwyt I2C (np. &hi2c1, &hi2c2)
+	bmp280.addr = BMP280_I2C_ADDRESS_0; // adres 0x76 (SDO do GND) lub ADDRESS_1 (0x77)
+	bmp280_init_default_params(&bmp280.params);
+	bmp280.params.mode = BMP280_MODE_FORCED;
+
+	bh1750.hi2c = &hi2c1;
+	bh1750.address = BH1750_I2C_ADDRESS;
+	bh1750.mode = BH1750_MODE_CONTINUOUS_HIGH_RES;
+	bh1750.initialized = false;
 
   /* USER CODE END Init */
 
@@ -158,10 +170,11 @@ void StartDefaultTask(void *argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
-  uint32_t lastLedToggle = HAL_GetTick();
   (void)argument;
 
   DebugPrintf("Device 0x%02X started\r\n", currentDevice->deviceId);
+
+  uint32_t lastLedToggle = HAL_GetTick();
 
   for (;;)
   {
@@ -289,11 +302,23 @@ void StartCommunicationTask(void *argument)
 void StartReadSensorsTask(void *argument)
 {
   /* USER CODE BEGIN StartReadSensorsTask */
-  static const char helloWorld[] = "Hello World";
-  uint8_t counter = 0;
-  char buffer[32];
+  char buffer[64];
 
   (void)argument;
+
+  while (BH1750_Init(&bh1750) != BH1750_OK)
+  {
+    Debug("BH1750 init failed. Retrying in 2 seconds...");
+    vTaskDelay(pdMS_TO_TICKS(2000));
+  }
+  Debug("BH1750 initialized successfully.");
+
+  while (!bmp280_init(&bmp280, &bmp280.params))
+  {
+    Debug("BMP280 init failed. Retrying in 2 seconds...");
+    vTaskDelay(pdMS_TO_TICKS(2000));
+  }
+  Debug("BMP280 initialized successfully.");
 
   while (!Communication_IsInitialized(&communication))
   {
@@ -302,34 +327,113 @@ void StartReadSensorsTask(void *argument)
 
   osDelay(1000u);
 
-  for (;;)
-  {
-	snprintf(buffer, sizeof(buffer), " %.11s %d !", helloWorld, counter);
+//  for (;;)
+//  {
+//	snprintf(buffer, sizeof(buffer), " %.11s %d !", helloWorld, counter);
+//
+//	if (Communication_Send(&communication,
+//						   rootDevice->deviceId,
+//						   MESSAGE_TYPE_HEARTBEAT,
+//						   buffer,
+//						   (uint16_t)strlen(buffer)))
+//	{
+//	  DebugMessage("TX QUEUED",
+//					currentDevice->deviceId,
+//					rootDevice->deviceId,
+//					(uint8_t)MESSAGE_TYPE_HEARTBEAT,
+//					(const uint8_t *)buffer,
+//					(uint16_t)strlen(buffer));
+//
+//	  counter++;
+//	  if(counter == 100)
+//		  counter = 0;
+//	}
+//	else
+//	{
+//	  Debug("Hello World TX queue failed\r\n");
+//	}
+//
+//	osDelay(5000u);
+//  }
 
-	if (Communication_Send(&communication,
-						   rootDevice->deviceId,
-						   MESSAGE_TYPE_HEARTBEAT,
-						   buffer,
-						   (uint16_t)strlen(buffer)))
+  //=================================================================
+	for (;;)
 	{
-	  DebugMessage("TX QUEUED",
-					currentDevice->deviceId,
-					rootDevice->deviceId,
-					(uint8_t)MESSAGE_TYPE_HEARTBEAT,
-					(const uint8_t *)buffer,
-					(uint16_t)strlen(buffer));
+		memset(buffer, '\0', sizeof(buffer));
+		if (bh1750.initialized)
+		{
+			float bh1750LuxMeasurement = BH1750_ReadLux(&bh1750);
 
-	  counter++;
-	  if(counter == 100)
-		  counter = 0;
-	}
-	else
-	{
-	  Debug("Hello World TX queue failed\r\n");
-	}
+			if (bh1750LuxMeasurement >= 0.0f)
+			{
+				snprintf(buffer, sizeof(buffer), "%.2f lux", bh1750LuxMeasurement);
+				if (Communication_Send(&communication, rootDevice->deviceId,MESSAGE_TYPE_LIGHT_MESURMENT, buffer, (uint16_t)strlen(buffer)))
+				{
+					  DebugMessage("TX QUEUED",	currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_LIGHT_MESURMENT,	(const uint8_t *)buffer, (uint16_t)strlen(buffer));
+				}
+			} else {
+				Debug("BH1750 read error.\r\n");
+			}
+		}
 
-	osDelay(5000u);
-  }
+		//===================================================================================
+		memset(buffer, '\0', sizeof(buffer));
+		// Krok A: Wymuszenie nowego pomiaru
+		if (bmp280.initialized)
+		{
+			if (bmp280_force_measurement(&bmp280))
+			{
+				bool isMeasuring = true;
+				bool statusReadOk = true;
+				uint32_t measurementStartTick = HAL_GetTick();
+
+				// Krok B: Czekamy na zakończenie pojedynczego pomiaru w trybie FORCED.
+				while (isMeasuring)
+				{
+					statusReadOk = bmp280_get_measuring_status(&bmp280, &isMeasuring);
+					if (!statusReadOk)
+					{
+						Debug("BMP280 status read error.\r\n");
+						break;
+					}
+
+					if ((HAL_GetTick() - measurementStartTick) >= 100U)
+					{
+						Debug("BMP280 measurement timeout.\r\n");
+						statusReadOk = false;
+						break;
+					}
+
+					if (isMeasuring)
+					{
+						vTaskDelay(pdMS_TO_TICKS(2));
+					}
+				}
+
+				// Krok C: Po pomiarze czujnik automatycznie wraca do trybu SLEEP.
+				if (statusReadOk && bmp280_read_float(&bmp280, &BMP280_temperature, &BMP280_pressure, &BMP280_humidity))
+				{
+					snprintf(buffer, sizeof(buffer), "T:%.2f C | P:%.2f hPa | H:%.2f %%", BMP280_temperature, BMP280_pressure / 100.0f, BMP280_humidity);
+
+					if (Communication_Send(&communication, rootDevice->deviceId, MESSAGE_TYPE_TEMP_PRES_HUMID_MESURMENT, buffer, (uint16_t)strlen(buffer)))
+					{
+						DebugMessage("TX QUEUED", currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_TEMP_PRES_HUMID_MESURMENT, (const uint8_t *)buffer, (uint16_t)strlen(buffer));
+					}
+				}
+				else
+				{
+					Debug("BMP280 read error.\r\n");
+				}
+			}
+			else
+			{
+				Debug("BMP280 force measurement failed.\r\n");
+			}
+		}
+
+
+		vTaskDelay(pdMS_TO_TICKS(10000));
+	}
   /* USER CODE END StartReadSensorsTask */
 }
 

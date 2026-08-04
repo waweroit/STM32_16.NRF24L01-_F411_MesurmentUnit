@@ -4,8 +4,9 @@
 
 #define NONCE_DIRECTION_DATA 0u
 
-_Static_assert((SECURE_FRAME_OVERHEAD + SECURE_MAX_PAYLOAD_SIZE) == SECURE_MAX_FRAME_SIZE,
-               "Secure frame constants must total exactly 32 bytes");
+#if (SECURE_FRAME_OVERHEAD + SECURE_MAX_PAYLOAD_SIZE) != SECURE_MAX_FRAME_SIZE
+#error "Secure frame constants must total exactly 32 bytes"
+#endif
 
 static void put_u32_be(uint8_t *buffer, uint32_t value)
 {

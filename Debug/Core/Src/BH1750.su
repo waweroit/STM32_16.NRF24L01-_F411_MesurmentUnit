@@ -1,0 +1,8 @@
+../Core/Src/BH1750.c:28:21:BH1750_WriteCommand	32	static
+../Core/Src/BH1750.c:53:21:BH1750_ReadRawData	32	static
+../Core/Src/BH1750.c:86:14:BH1750_Init	24	static
+../Core/Src/BH1750.c:130:7:BH1750_ReadLux	32	static
+../Core/Src/BH1750.c:159:5:BH1750_ReadLuxInt	24	static
+../Core/Src/BH1750.c:176:14:BH1750_Reset	24	static
+../Core/Src/BH1750.c:198:14:BH1750_PowerOff	16	static
+../Core/Src/BH1750.c:214:14:BH1750_SetMode	24	static

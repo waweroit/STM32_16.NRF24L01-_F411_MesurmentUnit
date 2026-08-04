@@ -31,6 +31,8 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h \
@@ -41,13 +43,15 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
- ../Core/Inc/spi.h ../Core/Inc/main.h ../Core/Inc/UsbDebug.h \
- ../Core/Inc/SecureCommunication.h ../Core/Inc/SecureTransport.h \
- ../Core/Inc/SecureProtocol.h ../Core/Inc/Crypto.h \
- ../Core/Inc/Communication.h ../Core/Inc/CommunicationLink.h \
- ../Core/Inc/SecureCommunication.h ../Core/Inc/CommunicationLink.h \
- ../Core/Inc/NrfLink.h ../Core/Inc/nRF24L01.h \
- ../Core/Inc/CommunicationDevices.h ../Core/Inc/NrfLink.h
+ ../Core/Inc/spi.h ../Core/Inc/main.h ../Core/Inc/i2c.h \
+ ../Core/Inc/UsbDebug.h ../Core/Inc/SecureCommunication.h \
+ ../Core/Inc/SecureTransport.h ../Core/Inc/SecureProtocol.h \
+ ../Core/Inc/Crypto.h ../Core/Inc/Communication.h \
+ ../Core/Inc/CommunicationLink.h ../Core/Inc/SecureCommunication.h \
+ ../Core/Inc/CommunicationLink.h ../Core/Inc/NrfLink.h \
+ ../Core/Inc/nRF24L01.h ../Core/Inc/CommunicationDevices.h \
+ ../Core/Inc/NrfLink.h ../Core/Inc/BMP280.h ../Core/Inc/BH1750.h \
+ ../Core/Inc/i2c.h
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h:
@@ -81,6 +85,8 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h:
@@ -93,6 +99,7 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h:
 ../Core/Inc/spi.h:
 ../Core/Inc/main.h:
+../Core/Inc/i2c.h:
 ../Core/Inc/UsbDebug.h:
 ../Core/Inc/SecureCommunication.h:
 ../Core/Inc/SecureTransport.h:
@@ -106,3 +113,6 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
 ../Core/Inc/nRF24L01.h:
 ../Core/Inc/CommunicationDevices.h:
 ../Core/Inc/NrfLink.h:
+../Core/Inc/BMP280.h:
+../Core/Inc/BH1750.h:
+../Core/Inc/i2c.h:

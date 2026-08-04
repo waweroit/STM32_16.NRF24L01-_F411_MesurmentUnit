@@ -21,10 +21,12 @@ extern "C" {
 /** @brief Authenticated application message types. */
 typedef enum {
     MESSAGE_TYPE_NONE = 0x00,
-    MESSAGE_TYPE_TEMPERATURE = 0x01,
-    MESSAGE_TYPE_COMMAND_SET_LED = 0x02,
-    MESSAGE_TYPE_ACK_APPLICATION = 0x03,
-    MESSAGE_TYPE_HEARTBEAT = 0x04,
+    MESSAGE_TYPE_ACK_APPLICATION = 0x01,
+    MESSAGE_TYPE_TEMPERATURE = 0x02,
+    MESSAGE_TYPE_PRESSURE = 0x03,
+    MESSAGE_TYPE_HUMIDITY = 0x04,
+	MESSAGE_TYPE_LIGHT_MESURMENT =0x05,
+	MESSAGE_TYPE_TEMP_PRES_HUMID_MESURMENT =0x06,
     /** Reserved internal type used by SecureTransport fragmentation. */
     MESSAGE_TYPE_FRAGMENT = 0x7Fu
 } SecureMessageType_t;
