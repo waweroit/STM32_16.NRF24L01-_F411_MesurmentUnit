@@ -240,14 +240,14 @@ BH1750_Error BH1750_SetMode(BH1750_HandleTypedef *dev, BH1750_Mode mode)
         case BH1750_CMD_CONTINUOUS_H_RES2:
         case BH1750_CMD_ONE_TIME_H_RES:
         case BH1750_CMD_ONE_TIME_H_RES2:
-            dev->conversionTimeMs = 120U;
+            dev->conversionTimeMs = 180U;
             break;
         case BH1750_CMD_CONTINUOUS_L_RES:
         case BH1750_CMD_ONE_TIME_L_RES:
             dev->conversionTimeMs = 16U;
             break;
         default:
-            dev->conversionTimeMs = 120;
+            dev->conversionTimeMs = 180U;
             break;
     }
 

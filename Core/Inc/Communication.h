@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#define COMMUNICATION_TX_QUEUE_DEPTH 3u
+#define COMMUNICATION_TX_QUEUE_DEPTH 4u
 #define COMMUNICATION_RX_QUEUE_DEPTH 3u
 #define COMMUNICATION_MAX_ROUTES     16u
 #define COMMUNICATION_SEND_TIMEOUT_MS 30u
@@ -76,6 +76,8 @@ CommunicationStatus_t Communication_Process(Communication_t *context);
 bool Communication_TryReceive(Communication_t *context,
                               CommunicationMessage_t *message);
 bool Communication_IsInitialized(const Communication_t *context);
+bool Communication_IsTxQueueEmpty(const Communication_t *context);
+bool Communication_ResetTxQueue(Communication_t *context);
 CommunicationLinkStatus_t Communication_GetLastLinkStatus(const Communication_t *context);
 SecureTransportStatus_t Communication_GetLastSecureStatus(const Communication_t *context);
 const char *Communication_StatusToString(CommunicationStatus_t status);

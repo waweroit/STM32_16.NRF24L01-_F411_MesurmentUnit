@@ -165,6 +165,16 @@ bool Communication_IsInitialized(const Communication_t *context)
     return context != NULL && context->initialized;
 }
 
+bool Communication_IsTxQueueEmpty(const Communication_t *context)
+{
+    return context != NULL && context->initialized && context->txQueue != NULL && osMessageQueueGetCount(context->txQueue) == 0u;
+}
+
+bool Communication_ResetTxQueue(Communication_t *context)
+{
+    return context != NULL && context->initialized && context->txQueue != NULL && osMessageQueueReset(context->txQueue) == osOK;
+}
+
 CommunicationLinkStatus_t Communication_GetLastLinkStatus(const Communication_t *context)
 {
     if (context == NULL)
