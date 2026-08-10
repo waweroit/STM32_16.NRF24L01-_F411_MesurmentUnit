@@ -172,6 +172,7 @@ void StartDefaultTask(void *argument)
   /* USER CODE BEGIN StartDefaultTask */
   (void)argument;
 
+  osDelay(10000u);
   DebugPrintf("Device 0x%02X started\r\n", currentDevice->deviceId);
 
   uint32_t lastLedToggle = HAL_GetTick();
@@ -208,13 +209,13 @@ void StartCommunicationTask(void *argument)
   CommunicationLink_t linkInterface;
   NRF24_Status_t nrfStatus;
   (void)argument;
-
+  osDelay(10000u);
   /* 1. Software/security layer: logical Device ID + key. */
   if (!SecureCommunication_Init(&secureCommunication,
                                 currentDevice->deviceId,
                                 currentDevice->deviceKey))
   {
-    Debug("SecureCommunication init failed\r\n");
+    Debug("SecureCommunication init failed: boot-counter Flash storage (sector 7, 0x08060000)\r\n");
     for (;;)
     {
       osDelay(1000u);
@@ -326,58 +327,28 @@ void StartReadSensorsTask(void *argument)
   }
 
   osDelay(1000u);
-
-//  for (;;)
-//  {
-//	snprintf(buffer, sizeof(buffer), " %.11s %d !", helloWorld, counter);
-//
-//	if (Communication_Send(&communication,
-//						   rootDevice->deviceId,
-//						   MESSAGE_TYPE_HEARTBEAT,
-//						   buffer,
-//						   (uint16_t)strlen(buffer)))
-//	{
-//	  DebugMessage("TX QUEUED",
-//					currentDevice->deviceId,
-//					rootDevice->deviceId,
-//					(uint8_t)MESSAGE_TYPE_HEARTBEAT,
-//					(const uint8_t *)buffer,
-//					(uint16_t)strlen(buffer));
-//
-//	  counter++;
-//	  if(counter == 100)
-//		  counter = 0;
-//	}
-//	else
-//	{
-//	  Debug("Hello World TX queue failed\r\n");
-//	}
-//
-//	osDelay(5000u);
-//  }
-
   //=================================================================
 	for (;;)
 	{
-		memset(buffer, '\0', sizeof(buffer));
 		if (bh1750.initialized)
 		{
 			float bh1750LuxMeasurement = BH1750_ReadLux(&bh1750);
 
 			if (bh1750LuxMeasurement >= 0.0f)
 			{
-				snprintf(buffer, sizeof(buffer), "%.2f lux", bh1750LuxMeasurement);
+				memset(buffer, '\0', sizeof(buffer));
+				snprintf(buffer, sizeof(buffer), "%.2f", bh1750LuxMeasurement);
 				if (Communication_Send(&communication, rootDevice->deviceId,MESSAGE_TYPE_LIGHT_MESURMENT, buffer, (uint16_t)strlen(buffer)))
 				{
-					  DebugMessage("TX QUEUED",	currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_LIGHT_MESURMENT,	(const uint8_t *)buffer, (uint16_t)strlen(buffer));
+					  DebugMessage("TX QUEUED lux",	currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_LIGHT_MESURMENT,	(const uint8_t *)buffer, (uint16_t)strlen(buffer));
 				}
 			} else {
-				Debug("BH1750 read error.\r\n");
+				Debug("BH1750 read error.");
 			}
 		}
 
 		//===================================================================================
-		memset(buffer, '\0', sizeof(buffer));
+
 		// Krok A: Wymuszenie nowego pomiaru
 		if (bmp280.initialized)
 		{
@@ -393,13 +364,13 @@ void StartReadSensorsTask(void *argument)
 					statusReadOk = bmp280_get_measuring_status(&bmp280, &isMeasuring);
 					if (!statusReadOk)
 					{
-						Debug("BMP280 status read error.\r\n");
+						Debug("BMP280 status read error.");
 						break;
 					}
 
 					if ((HAL_GetTick() - measurementStartTick) >= 100U)
 					{
-						Debug("BMP280 measurement timeout.\r\n");
+						Debug("BMP280 measurement timeout.");
 						statusReadOk = false;
 						break;
 					}
@@ -413,21 +384,41 @@ void StartReadSensorsTask(void *argument)
 				// Krok C: Po pomiarze czujnik automatycznie wraca do trybu SLEEP.
 				if (statusReadOk && bmp280_read_float(&bmp280, &BMP280_temperature, &BMP280_pressure, &BMP280_humidity))
 				{
-					snprintf(buffer, sizeof(buffer), "T:%.2f C | P:%.2f hPa | H:%.2f %%", BMP280_temperature, BMP280_pressure / 100.0f, BMP280_humidity);
-
-					if (Communication_Send(&communication, rootDevice->deviceId, MESSAGE_TYPE_TEMP_PRES_HUMID_MESURMENT, buffer, (uint16_t)strlen(buffer)))
+//					snprintf(buffer, sizeof(buffer), "T:%.2f|P:%.2f|H:%.2f", BMP280_temperature, BMP280_pressure / 100.0f, BMP280_humidity);
+//
+//					if (Communication_Send(&communication, rootDevice->deviceId, MESSAGE_TYPE_TEMP_PRES_HUMID_MESURMENT, buffer, (uint16_t)strlen(buffer)))
+//					{
+//						DebugMessage("TX QUEUED", currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_TEMP_PRES_HUMID_MESURMENT, (const uint8_t *)buffer, (uint16_t)strlen(buffer));
+//					}
+					memset(buffer, '\0', sizeof(buffer));
+					snprintf(buffer, sizeof(buffer), "%.2f", BMP280_temperature);
+					if (Communication_Send(&communication, rootDevice->deviceId, MESSAGE_TYPE_TEMPERATURE, buffer, (uint16_t)strlen(buffer)))
 					{
-						DebugMessage("TX QUEUED", currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_TEMP_PRES_HUMID_MESURMENT, (const uint8_t *)buffer, (uint16_t)strlen(buffer));
+						DebugMessage("TX QUEUED Temperature", currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_TEMPERATURE, (const uint8_t *)buffer, (uint16_t)strlen(buffer));
+					}
+
+					memset(buffer, '\0', sizeof(buffer));
+					snprintf(buffer, sizeof(buffer), "%.2f", BMP280_pressure / 100.0f);
+					if (Communication_Send(&communication, rootDevice->deviceId, MESSAGE_TYPE_PRESSURE, buffer, (uint16_t)strlen(buffer)))
+					{
+						DebugMessage("TX QUEUED Pressure", currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_PRESSURE, (const uint8_t *)buffer, (uint16_t)strlen(buffer));
+					}
+
+					memset(buffer, '\0', sizeof(buffer));
+					snprintf(buffer, sizeof(buffer), "%.2f", BMP280_humidity);
+					if (Communication_Send(&communication, rootDevice->deviceId, MESSAGE_TYPE_HUMIDITY, buffer, (uint16_t)strlen(buffer)))
+					{
+						DebugMessage("TX QUEUED Humidity", currentDevice->deviceId, rootDevice->deviceId, (uint8_t)MESSAGE_TYPE_HUMIDITY, (const uint8_t *)buffer, (uint16_t)strlen(buffer));
 					}
 				}
 				else
 				{
-					Debug("BMP280 read error.\r\n");
+					Debug("BMP280 read error.");
 				}
 			}
 			else
 			{
-				Debug("BMP280 force measurement failed.\r\n");
+				Debug("BMP280 force measurement failed.");
 			}
 		}
 

@@ -42,10 +42,15 @@ _Min_Heap_Size = 0x200; /* required amount of heap */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Memories definition */
+/*
+ * STM32F411CE has 512 KiB of Flash. Sector 7 (0x08060000-0x0807FFFF,
+ * 128 KiB) is reserved for SecureSessionStorage boot-counter data and must
+ * never be used by the linker for application code or constants.
+ */
 MEMORY
 {
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 512K
+  FLASH  (rx)     : ORIGIN = 0x08000000,   LENGTH = 384K
 }
 
 /* Sections */
